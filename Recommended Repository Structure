@@ -1,0 +1,31 @@
+customer-support-triage/
+├── .github/
+│   └── workflows/
+│       └── validate.yml          # GitHub Action to auto-validate on push
+├── src/
+│   ├── __init__.py
+│   ├── env/
+│   │   ├── __init__.py
+│   │   ├── my_env_v4.py
+│   │   └── openenv.yaml
+│   └── server/
+│       ├── __init__.py
+│       └── server.py
+├── scripts/
+│   ├── validate-submission.sh    # Validator script
+│   ├── local_test.sh              # Quick local test script
+│   └── run_inference.sh           # Wrapper for inference.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_env.py                # Unit tests for environment
+│   └── test_server.py             # Unit tests for API
+├── inference.py                    # Baseline inference script (root)
+├── Dockerfile
+├── requirements.txt
+├── requirements-dev.txt            # Dev dependencies
+├── README.md
+├── .gitignore
+├── .env.example                    # Environment variables template
+├── docker-compose.yml              # For local development
+├── Makefile                        # Common commands shortcut
+└── LICENSE                         # MIT or Apache-2.0
