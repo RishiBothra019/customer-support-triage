@@ -28,10 +28,14 @@ def root():
     return {"status": "Customer Support Triage Environment is running"}
 
 @app.post("/reset")
-def reset(req: ResetRequest):
-    if req.task not in TASKS:
+def reset(req: ResetRequest = None):
+    # Handle empty body or missing task by defaulting to "easy"
+    task = "easy"
+    if req and req.task:
+        task = req.task
+    if task not in TASKS:
         raise HTTPException(400, f"Unknown task. Choose from {list(TASKS.keys())}")
-    obs = env.reset(req.task)
+    obs = env.reset(task)
     return obs.dict()
 
 @app.post("/step")
