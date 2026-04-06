@@ -1,0 +1,42 @@
+name: Validate OpenEnv Submission
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install openenv-core
+      run: pip install openenv-core
+    
+    - name: Validate openenv.yaml
+      run: openenv validate
+    
+    - name: Build Docker image
+      run: docker build -t test-env .
+    
+    - name: Run Docker container
+      run: |
+        docker run -d -p 7860:7860 --name test-container test-env
+        sleep 5
+    
+    - name: Test /reset endpoint
+      run: |
+        curl -f -X POST http://localhost:7860/reset \
+          -H "Content-Type: application/json" \
+          -d '{"task":"easy"}'
+    
+    - name: Clean up
+      run: docker stop test-container && docker rm test-container
