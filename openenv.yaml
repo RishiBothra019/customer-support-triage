@@ -1,0 +1,51 @@
+name: customer_support_triage
+version: 1.0.0
+description: >
+  Real‑world task where an AI agent classifies a customer support ticket
+  (category + priority) and writes an appropriate response. Partial rewards
+  are given after each step. Three difficulty levels (easy, medium, hard)
+  with built‑in graders.
+author: OpenEnv Contributor
+license: MIT
+
+tasks:
+  - id: easy
+    description: "Clear billing overcharge – agent must choose billing + high priority and mention refund."
+    difficulty: easy
+  - id: medium
+    description: "Vague performance complaint – agent should choose technical + medium priority and suggest performance check."
+    difficulty: medium
+  - id: hard
+    description: "Long feature request with minor bug – agent should choose feature_request + low priority and acknowledge CSV export."
+    difficulty: hard
+
+action_space:
+  type: object
+  properties:
+    category:
+      type: string
+      enum: [billing, technical, feature_request, complaint, other]
+    priority:
+      type: string
+      enum: [high, medium, low]
+    response:
+      type: string
+  description: "Step1: category+priority; Step2: response text."
+
+observation_space:
+  type: object
+  properties:
+    ticket_text:
+      type: string
+    step:
+      type: integer
+    last_action_valid:
+      type: boolean
+    feedback:
+      type: string
+    current_reward_so_far:
+      type: number
+    done:
+      type: boolean
+
+reward_range: [-0.2, 1.0]
