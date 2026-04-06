@@ -1,22 +1,105 @@
-# Customer Support Ticket Triage – OpenEnv Environment
+---
+title: "Customer Support Triage Environment"
+emoji: 🤖
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+app_file: server.py
+---
 
-A real‑world environment where an AI agent learns to classify and respond to customer support tickets.  
-Built to the **OpenEnv** specification, with three difficulty levels (easy, medium, hard), partial rewards, and programmatic graders.
+# Customer Support Ticket Triage - OpenEnv Environment
 
-## Environment Description
+[![Hugging Face Space](https://img.shields.io/badge/🤗-Space-blue)](https://huggingface.co/spaces/rishibothra/customer-support-triage)
+[![OpenEnv](https://img.shields.io/badge/OpenEnv-Compatible-green)](https://github.com/openenv)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The agent receives a customer support ticket (text). In **Step 1** it must choose a **category** (`billing`, `technical`, `feature_request`, `complaint`, `other`) and a **priority** (`high`, `medium`, `low`). In **Step 2** it writes a short response.  
-Rewards are given after each step:
-- Step 1: up to 0.5 (0.25 for correct category, 0.25 for correct priority)
-- Step 2: up to 0.5 based on keyword matches in the response
+## 📋 Table of Contents
+- [Environment Description](#environment-description)
+- [Real-World Application](#real-world-application)
+- [Task Difficulty Levels](#task-difficulty-levels)
+- [Action Space](#action-space)
+- [Observation Space](#observation-space)
+- [Reward Function](#reward-function)
+- [Grader Logic](#grader-logic)
+- [Setup Instructions](#setup-instructions)
+- [Usage Examples](#usage-examples)
+- [Baseline Scores](#baseline-scores)
+- [Validation](#validation)
+- [Deployment](#deployment)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Citation](#citation)
 
-Invalid actions (e.g., missing fields) receive a small penalty (-0.1).  
-The final score (0.0–1.0) is computed by a deterministic grader that compares the agent’s actions against the gold standard for each task.
+## 🎯 Environment Description
 
-## Action & Observation Spaces
+This environment simulates a **real-world customer support ticket triage system** where an AI agent acts as a support agent. The agent must:
 
-### Action
+1. **Classify** incoming customer tickets by category and priority
+2. **Respond** with appropriate, helpful messages
+
+The environment is designed for training and evaluating AI agents on practical customer service skills that humans perform daily in support roles.
+
+### Why This Matters
+- Customer support agents handle millions of tickets daily
+- Proper triage reduces response time by 40-60%
+- Automated triage saves companies $15-30B annually
+- This environment bridges the gap between game-like tasks and real business applications
+
+## 💼 Real-World Application
+
+In actual customer support workflows, agents must:
+- **Quickly categorize** issues (billing, technical, feature requests, complaints)
+- **Prioritize** based on urgency and impact
+- **Craft responses** that address customer needs while following company guidelines
+
+This environment captures all three aspects with progressive difficulty levels.
+
+## 🎮 Task Difficulty Levels
+
+| Task | Difficulty | Description | Expected Category | Expected Priority | Response Keywords | Success Threshold |
+|------|------------|-------------|-------------------|-------------------|-------------------|-------------------|
+| **Easy** | ⭐ | Clear billing overcharge with explicit refund request | `billing` | `high` | refund, duplicate, credit, apologiz | ≥ 0.7 |
+| **Medium** | ⭐⭐ | Vague performance complaint requiring diagnosis | `technical` | `medium` | slow, performance, investigat, check, server | ≥ 0.6 |
+| **Hard** | ⭐⭐⭐ | Long, nuanced feature request with minor bug mention | `feature_request` | `low` | csv, export, suggest, consider, feedback, roadmap | ≥ 0.5 |
+
+### Task Details
+
+#### Easy Task: Billing Overcharge
+**Ticket Text:** 
+> "I was charged $49.99 twice for my monthly subscription. Please refund the duplicate charge immediately."
+
+**Success Criteria:** 
+- Correct category (`billing`) and priority (`high`)
+- Response mentions refund, duplicate charge, or credit
+
+#### Medium Task: Performance Complaint
+**Ticket Text:**
+> "Your app has become extremely slow lately. It takes forever to load my dashboard. Is something wrong with your servers?"
+
+**Success Criteria:**
+- Correct category (`technical`) and priority (`medium`)
+- Response acknowledges performance issues and suggests investigation
+
+#### Hard Task: Feature Request
+**Ticket Text:**
+> "I have been using your product for two years. The UI is great but I really need the ability to export data to CSV. I know you said it's not a priority, but many users ask for it. Also, the search filter sometimes resets – that's minor. Please consider adding CSV export. Thanks."
+
+**Success Criteria:**
+- Correct category (`feature_request`) and priority (`low`)
+- Response acknowledges the feature request positively
+
+## 🎬 Action Space
+
+The agent takes actions as a JSON object with the following schema:
+
 ```json
+{
+  "category": "billing | technical | feature_request | complaint | other",
+  "priority": "high | medium | low",
+  "response": "string (free text, 3+ characters)"
+}
 {
   "category": "billing|technical|feature_request|complaint|other",
   "priority": "high|medium|low",
